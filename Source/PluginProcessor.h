@@ -57,10 +57,29 @@ public:
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
 	//Custom stuff under here
+	enum class ClippingType
+	{
+		SoftClipping,
+		HardClipping,
+		Dummy1,
+		Dummy2
+	};
+
 	static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters",createParameterLayout() };
 
 private:
+
+
+
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleDistortionAudioProcessor)
 };
+
+struct ChainSettings
+{
+	float inputGainInDecibels{ 0.0f }, mix{ 0.5f }, outputGainInDecibels{ 0.0f }, drive{ 0.5f };
+	int clippingType{ 0 };
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
