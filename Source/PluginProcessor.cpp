@@ -22,6 +22,7 @@ SimpleDistortionAudioProcessor::SimpleDistortionAudioProcessor()
 	)
 #endif
 {
+
 }
 
 SimpleDistortionAudioProcessor::~SimpleDistortionAudioProcessor()
@@ -93,8 +94,13 @@ void SimpleDistortionAudioProcessor::changeProgramName(int index, const juce::St
 //==============================================================================
 void SimpleDistortionAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	// Use this method as the place to do any pre-playback
-	// initialisation that you need..
+	juce::dsp::ProcessSpec spec;
+
+	spec.maximumBlockSize = samplesPerBlock;
+	spec.numChannels = 1;
+	spec.sampleRate = sampleRate;
+
+	//processorChain.prepare(spec);
 }
 
 void SimpleDistortionAudioProcessor::releaseResources()
@@ -200,78 +206,19 @@ void SimpleDistortionAudioProcessor::setStateInformation(const void* data, int s
 }
 
 //Custom stuff under here
-constexpr const char* ClippingTypeToString(SimpleDistortionAudioProcessor::ClippingType ct) throw()
-{
-	switch(ct)
-	{
-		case SimpleDistortionAudioProcessor::ClippingType::SoftClipping:
-			return "Soft Clipping";
-		case SimpleDistortionAudioProcessor::ClippingType::HardClipping:
-			return "Hard Clipping";
-		case SimpleDistortionAudioProcessor::ClippingType::Dummy1:
-			return "Dummy 1";
-		case SimpleDistortionAudioProcessor::ClippingType::Dummy2:
-			return "Dummy 1";
-		default:
-			throw std::invalid_argument("Unimplemented clippingtype");
-	}
-}
+
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
 {
 	ChainSettings settings;
 
-	settings.inputGainInDecibels = apvts.getRawParameterValue("Input Gain")->load();
-	settings.outputGainInDecibels = apvts.getRawParameterValue("Output Gain")->load());
-	settings.mix = apvts.getRawParameterValue("Mix")->load();
-	settings.drive = apvts.getRawParameterValue("Drive/Hardness")->load();
-	settings.clippingType = apvts.getRawParameterValue("Clipping Type")->load();
+	settings.inputGainInDecibels = apvts.getRawParameterValue(Parameters::ID_INPUT)->load();
+	settings.outputGainInDecibels = apvts.getRawParameterValue(Parameters::ID_OUTPUT)->load();
+	settings.mix = apvts.getRawParameterValue(Parameters::ID_MIX)->load();
+	settings.drive = apvts.getRawParameterValue(Parameters::ID_DRIVE)->load();
+	settings.clippingType = apvts.getRawParameterValue(Parameters::ID_CLIPPINGTYPE)->load();
 
 	return settings;
-}
-
-juce::AudioProcessorValueTreeState::ParameterLayout SimpleDistortionAudioProcessor::createParameterLayout()
-{
-	juce::AudioProcessorValueTreeState::ParameterLayout layout;
-
-	layout.add(std::make_unique<juce::AudioParameterFloat>(
-		"Drive/Hardness",
-		"Drive/Hardness",
-		juce::NormalisableRange<float>(0.0f, 1.0f),
-		0.5f));
-
-	layout.add(std::make_unique<juce::AudioParameterFloat>(
-		"Input Gain",
-		"Input Gain",
-		juce::NormalisableRange<float>(-12.0f, 12.0f, 0.1f),
-		0.0f));
-
-	layout.add(std::make_unique<juce::AudioParameterFloat>(
-		"Output Gain",
-		"Output Gain",
-		juce::NormalisableRange<float>(-12.0f, 12.0f, 0.1f),
-		0.0f));
-
-	layout.add(std::make_unique<juce::AudioParameterFloat>(
-		"Mix",
-		"Mix",
-		juce::NormalisableRange<float>(0.0f, 1.0f),
-		0.5f));
-
-
-	juce::StringArray clippingTypeArray(ClippingTypeToString(ClippingType::HardClipping),
-		ClippingTypeToString(ClippingType::SoftClipping),
-		ClippingTypeToString(ClippingType::Dummy1),
-		ClippingTypeToString(ClippingType::Dummy2));
-
-	layout.add(std::make_unique<juce::AudioParameterChoice>(
-		"Clipping Type",
-		"Clipping Type",
-		clippingTypeArray,
-		0));
-
-
-	return layout;
 }
 
 //==============================================================================

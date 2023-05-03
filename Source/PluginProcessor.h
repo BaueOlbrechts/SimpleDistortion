@@ -7,8 +7,9 @@
 */
 
 #pragma once
-
 #include <JuceHeader.h>
+#include "Parameters.h"
+
 
 //==============================================================================
 /**
@@ -57,19 +58,11 @@ public:
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
 	//Custom stuff under here
-	enum class ClippingType
-	{
-		SoftClipping,
-		HardClipping,
-		Dummy1,
-		Dummy2
-	};
+	
 
-	static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters",createParameterLayout() };
+	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters", Parameters::createParameterLayout()};
 
 private:
-
 
 
 	//==============================================================================
