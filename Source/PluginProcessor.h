@@ -9,6 +9,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Parameters.h"
+#include "Distortion.h"
 
 
 //==============================================================================
@@ -58,11 +59,15 @@ public:
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
 	//Custom stuff under here
-	
 
-	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters", Parameters::createParameterLayout()};
+
+	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters", Parameters::createParameterLayout() };
 
 private:
+	Distortion* p_distortion = new Distortion;
+
+	using WaveShaper = juce::dsp::WaveShaper<float>;
+	juce::dsp::ProcessorChain<WaveShaper> processorChain;
 
 
 	//==============================================================================
@@ -72,7 +77,7 @@ private:
 struct ChainSettings
 {
 	float inputGainInDecibels{ 0.0f }, mix{ 0.5f }, outputGainInDecibels{ 0.0f }, drive{ 0.5f };
-	int clippingType{ 0 };
+	Parameters::ClippingType clippingType{ Parameters::ClippingType::SoftClipping };
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);

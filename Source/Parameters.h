@@ -1,3 +1,6 @@
+#ifndef PARAMETERS_H
+#define PARAMETERS_H
+
 #pragma once
 #include <JuceHeader.h>
 
@@ -90,3 +93,5 @@ public:
         return layout;
     }
 };
+
+#endif
