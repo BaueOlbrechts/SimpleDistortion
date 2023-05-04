@@ -242,3 +242,5 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
 	return new SimpleDistortionAudioProcessor();
 }
+
+// copy "$(OutputPath)$(TargetFileName)" "D:\VSTBuilds\VST3$(TargetFileName)"
