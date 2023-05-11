@@ -156,11 +156,15 @@ void SimpleDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
 	for(auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
+	auto chainSettings = getChainSettings(apvts);
+	buffer.applyGain(juce::Decibels::decibelsToGain(chainSettings.inputGainInDecibels));
+
 	juce::dsp::AudioBlock<float> block(buffer);
 	juce::dsp::ProcessContextReplacing<float> context(block);
 	processorChain.process(context);
 	
-	
+	buffer.applyGain(juce::Decibels::decibelsToGain(chainSettings.outputGainInDecibels));
+
 
 
 
