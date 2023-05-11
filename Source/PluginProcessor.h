@@ -59,25 +59,12 @@ public:
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
 	//Custom stuff under here
-
-
 	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters", Parameters::createParameterLayout() };
 
 private:
-	Distortion* p_distortion = new Distortion;
-
-	using WaveShaper = juce::dsp::WaveShaper<float>;
-	juce::dsp::ProcessorChain<WaveShaper> processorChain;
-
-
+	Distortion* p_distortion;
+ 
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleDistortionAudioProcessor)
 };
 
-struct ChainSettings
-{
-	float inputGainInDecibels{ 0.0f }, mix{ 0.5f }, outputGainInDecibels{ 0.0f }, drive{ 0.5f };
-	Parameters::ClippingType clippingType{ Parameters::ClippingType::SoftClipping };
-};
-
-ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);

@@ -22,12 +22,7 @@ SimpleDistortionAudioProcessor::SimpleDistortionAudioProcessor()
 	)
 #endif
 {
-	auto& waveshaper = processorChain.template get<0>();
-	waveshaper.functionToUse = [](float x)
-	{
-		return juce::jlimit(float(-0.3), float(0.3), x);
-	};
-
+	p_distortion = new Distortion(&apvts);
 }
 
 SimpleDistortionAudioProcessor::~SimpleDistortionAudioProcessor()
@@ -105,8 +100,7 @@ void SimpleDistortionAudioProcessor::prepareToPlay(double sampleRate, int sample
 	spec.numChannels = 1;
 	spec.sampleRate = sampleRate;
 
-	//p_distortion->Prepare(spec);
-	processorChain.prepare(spec);
+	p_distortion->Prepare(spec);
 }
 
 void SimpleDistortionAudioProcessor::releaseResources()
@@ -156,46 +150,10 @@ void SimpleDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
 	for(auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
-	auto chainSettings = getChainSettings(apvts);
-	buffer.applyGain(juce::Decibels::decibelsToGain(chainSettings.inputGainInDecibels));
-
 	juce::dsp::AudioBlock<float> block(buffer);
 	juce::dsp::ProcessContextReplacing<float> context(block);
-	processorChain.process(context);
-	
-	buffer.applyGain(juce::Decibels::decibelsToGain(chainSettings.outputGainInDecibels));
+	p_distortion->Process(context);
 
-
-
-
-	/*
-	// This is the place where you'd normally do the guts of your plugin's
-	// audio processing...
-	// Make sure to reset the state if your inner loop is processing
-	// the samples and the outer loop is handling the channels.
-	// Alternatively, you can process the samples with the channels
-	// interleaved by keeping the same state.
-
-	auto chainSettings = getChainSettings(apvts);
-
-	buffer.applyGain(juce::Decibels::decibelsToGain(chainSettings.inputGainInDecibels));
-
-	for(int channel = 0; channel < totalNumInputChannels; ++channel)
-	{
-
-		auto* channelData = buffer.getWritePointer(channel);
-
-		for(int i{ 0 }; i < buffer.getNumSamples(); i++)
-		{
-			auto input = channelData[i];
-
-			channelData[i] = input;
-		}
-
-
-	}
-	buffer.applyGain(juce::Decibels::decibelsToGain(chainSettings.outputGainInDecibels));
-	*/
 }
 
 //==============================================================================
@@ -227,18 +185,7 @@ void SimpleDistortionAudioProcessor::setStateInformation(const void* data, int s
 //Custom stuff under here
 
 
-ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
-{
-	ChainSettings settings;
 
-	settings.inputGainInDecibels = apvts.getRawParameterValue(Parameters::ID_INPUT)->load();
-	settings.outputGainInDecibels = apvts.getRawParameterValue(Parameters::ID_OUTPUT)->load();
-	settings.mix = apvts.getRawParameterValue(Parameters::ID_MIX)->load();
-	settings.drive = apvts.getRawParameterValue(Parameters::ID_DRIVE)->load();
-	settings.clippingType = static_cast<Parameters::ClippingType>(apvts.getRawParameterValue(Parameters::ID_CLIPPINGTYPE)->load());
-
-	return settings;
-}
 
 //==============================================================================
 // This creates new instances of the plugin..
