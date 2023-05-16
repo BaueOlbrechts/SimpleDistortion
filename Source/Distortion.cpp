@@ -29,16 +29,13 @@ void Distortion::UpdateChain()
 	Parameters::ChainSettings settings = Parameters::getChainSettings(p_apvts);
 
 	auto& waveshaper = processorChain.template get<waveShaperIndex>();
-	waveshaper.functionToUse = GetDistortionAlgorithm(settings.clippingType, settings.drive, settings.mix);
-
-	auto& preGain = processorChain.template get<preGainIndex>();
-	preGain.setGainDecibels(settings.inputGainInDecibels);
+	waveshaper.functionToUse = GetDistortionAlgorithm(settings.clippingType, settings.drive, settings.hardness, settings.mix);
 
 	auto& postGain = processorChain.template get<postGainIndex>();
 	postGain.setGainDecibels(settings.outputGainInDecibels);
 }
 
-std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters::ClippingType clippingType, float drive, float mix)
+std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters::ClippingType clippingType, float drive, float hardness, float mix)
 {
 	switch(clippingType)
 	{

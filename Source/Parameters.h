@@ -10,14 +10,14 @@ class Parameters
 {
 public:
 	inline static const juce::String
-		ID_INPUT = "input",
-		ID_INPUT_DISPLAY = "Input Gain",
 		ID_OUTPUT = "output",
 		ID_OUTPUT_DISPLAY = "Output Gain",
 		ID_MIX = "mix",
 		ID_MIX_DISPLAY = "Mix",
 		ID_DRIVE = "drive",
-		ID_DRIVE_DISPLAY = "Drive/Hardness",
+		ID_DRIVE_DISPLAY = "Drive",
+		ID_HARDNESS = "hardness",
+		ID_HARDNESS_DISPLAY = "Hardness",
 		ID_CLIPPINGTYPE = "clippingType",
 		ID_CLIPPINGTYPE_DISPLAY = "Clipping Type",
 		ID_BYPASS = "bypass",
@@ -51,21 +51,21 @@ public:
 		juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
 		layout.add(std::make_unique<juce::AudioParameterFloat>(
-			ID_DRIVE,
-			ID_DRIVE_DISPLAY,
-			juce::NormalisableRange<float>(0.0f, 1.0f),
-			0.5f));
+			ID_HARDNESS,
+			ID_HARDNESS_DISPLAY,
+			juce::NormalisableRange<float>(0.0f, 1.0f, 0.1f),
+			0.0f));
 
 		layout.add(std::make_unique<juce::AudioParameterFloat>(
-			ID_INPUT,
-			ID_INPUT_DISPLAY,
-			juce::NormalisableRange<float>(-12.0f, 12.0f, 0.1f),
+			ID_DRIVE,
+			ID_DRIVE_DISPLAY,
+			juce::NormalisableRange<float>(-30.f, 30.0f, 0.1f),
 			0.0f));
 
 		layout.add(std::make_unique<juce::AudioParameterFloat>(
 			ID_OUTPUT,
 			ID_OUTPUT_DISPLAY,
-			juce::NormalisableRange<float>(-12.0f, 12.0f, 0.1f),
+			juce::NormalisableRange<float>(-30.0f, 30.0f, 0.1f),
 			0.0f));
 
 		layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -94,10 +94,10 @@ public:
 
 		return layout;
 	}
-	
+
 	struct ChainSettings
 	{
-		float inputGainInDecibels{ 0.0f }, mix{ 0.5f }, outputGainInDecibels{ 0.0f }, drive{ 0.5f };
+		float hardness{ 0.0f }, mix{ 1.0f }, outputGainInDecibels{ 0.0f }, drive{ 0.0f };
 		ClippingType clippingType{ ClippingType::SoftClipping };
 	};
 
@@ -105,10 +105,10 @@ public:
 	{
 		ChainSettings settings;
 
-		settings.inputGainInDecibels = apvts->getRawParameterValue(ID_INPUT)->load();
+		settings.hardness = apvts->getRawParameterValue(ID_HARDNESS)->load();
+		settings.drive = apvts->getRawParameterValue(ID_DRIVE)->load();
 		settings.outputGainInDecibels = apvts->getRawParameterValue(ID_OUTPUT)->load();
 		settings.mix = apvts->getRawParameterValue(ID_MIX)->load();
-		settings.drive = apvts->getRawParameterValue(ID_DRIVE)->load();
 		settings.clippingType = static_cast<ClippingType>(apvts->getRawParameterValue(ID_CLIPPINGTYPE)->load());
 
 		return settings;

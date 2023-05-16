@@ -21,14 +21,13 @@ public:
 private:
 	enum
 	{
-		preGainIndex,
 		waveShaperIndex,
 		postGainIndex,
 	};
-	juce::dsp::ProcessorChain<juce::dsp::Gain<DataType>, juce::dsp::WaveShaper<DataType, std::function<DataType(DataType)>>, juce::dsp::Gain<DataType>> processorChain;
+	juce::dsp::ProcessorChain<juce::dsp::WaveShaper<DataType, std::function<DataType(DataType)>>, juce::dsp::Gain<DataType>> processorChain;
 	juce::AudioProcessorValueTreeState* p_apvts;
 
-	std::function<DataType(DataType)> GetDistortionAlgorithm(Parameters::ClippingType clippingType, float drive, float mix);
+	std::function<DataType(DataType)> GetDistortionAlgorithm(Parameters::ClippingType clippingType, float drive, float hardness, float mix);
 	void UpdateChain();
 };
 
