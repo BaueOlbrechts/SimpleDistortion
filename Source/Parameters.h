@@ -4,6 +4,8 @@
 #pragma once
 #include <JuceHeader.h>
 
+
+
 class Parameters
 {
 public:
@@ -25,7 +27,7 @@ public:
 	{
 		SoftClipping,
 		HardClipping,
-		Dummy1,
+		SineFold,
 		Dummy2
 	};
 
@@ -37,8 +39,8 @@ public:
 				return "Soft Clipping";
 			case ClippingType::HardClipping:
 				return "Hard Clipping";
-			case ClippingType::Dummy1:
-				return "Dummy 1";
+			case ClippingType::SineFold:
+				return "Sine Fold";
 			case ClippingType::Dummy2:
 				return "Dummy 2";
 		}
@@ -70,12 +72,12 @@ public:
 			ID_MIX,
 			ID_MIX_DISPLAY,
 			juce::NormalisableRange<float>(0.0f, 1.0f),
-			0.5f));
+			1.0f));
 
 
 		juce::StringArray clippingTypeArray(ClippingTypeToString(ClippingType::SoftClipping),
 			ClippingTypeToString(ClippingType::HardClipping),
-			ClippingTypeToString(ClippingType::Dummy1),
+			ClippingTypeToString(ClippingType::SineFold),
 			ClippingTypeToString(ClippingType::Dummy2));
 
 		layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -92,7 +94,13 @@ public:
 
 		return layout;
 	}
-	/*
+	
+	struct ChainSettings
+	{
+		float inputGainInDecibels{ 0.0f }, mix{ 0.5f }, outputGainInDecibels{ 0.0f }, drive{ 0.5f };
+		ClippingType clippingType{ ClippingType::SoftClipping };
+	};
+
 	static ChainSettings getChainSettings(juce::AudioProcessorValueTreeState* apvts)
 	{
 		ChainSettings settings;
@@ -105,13 +113,5 @@ public:
 
 		return settings;
 	}
-	*/
 };
-
-struct ChainSettings
-{
-	float inputGainInDecibels{ 0.0f }, mix{ 0.5f }, outputGainInDecibels{ 0.0f }, drive{ 0.5f };
-	Parameters::ClippingType clippingType{ Parameters::ClippingType::SoftClipping };
-};
-
 #endif

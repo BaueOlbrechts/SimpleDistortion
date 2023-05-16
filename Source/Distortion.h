@@ -5,8 +5,8 @@
 #include "JuceHeader.h"
 #include "Parameters.h"
 
-using WaveShaperDataType = float;
-using ProcessContext = juce::dsp::ProcessContextReplacing<WaveShaperDataType>;
+using DataType = float;
+using ProcessContext = juce::dsp::ProcessContextReplacing<DataType>;
 
 class Distortion
 {
@@ -25,9 +25,10 @@ private:
 		waveShaperIndex,
 		postGainIndex,
 	};
-	juce::dsp::ProcessorChain<juce::dsp::Gain<WaveShaperDataType>, juce::dsp::WaveShaper<WaveShaperDataType>, juce::dsp::Gain<WaveShaperDataType>> processorChain;
+	juce::dsp::ProcessorChain<juce::dsp::Gain<DataType>, juce::dsp::WaveShaper<DataType, std::function<DataType(DataType)>>, juce::dsp::Gain<DataType>> processorChain;
 	juce::AudioProcessorValueTreeState* p_apvts;
 
+	std::function<DataType(DataType)> GetDistortionAlgorithm(Parameters::ClippingType clippingType, float drive, float mix);
 	void UpdateChain();
 };
 
