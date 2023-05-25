@@ -97,7 +97,7 @@ public:
 
 	struct ChainSettings
 	{
-		float hardness{ 0.0f }, mix{ 1.0f }, outputGainInDecibels{ 0.0f }, drive{ 0.0f };
+		float hardness{ 0.0f }, mix{ 1.0f }, outputGainInDecibels{ 0.0f }, driveInDecibels{ 0.0f };
 		ClippingType clippingType{ ClippingType::SoftClipping };
 	};
 
@@ -106,7 +106,7 @@ public:
 		ChainSettings settings;
 
 		settings.hardness = apvts->getRawParameterValue(ID_HARDNESS)->load();
-		settings.drive = apvts->getRawParameterValue(ID_DRIVE)->load();
+		settings.driveInDecibels = apvts->getRawParameterValue(ID_DRIVE)->load();
 		settings.outputGainInDecibels = apvts->getRawParameterValue(ID_OUTPUT)->load();
 		settings.mix = apvts->getRawParameterValue(ID_MIX)->load();
 		settings.clippingType = static_cast<ClippingType>(apvts->getRawParameterValue(ID_CLIPPINGTYPE)->load());

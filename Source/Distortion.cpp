@@ -29,7 +29,7 @@ void Distortion::UpdateChain()
 	Parameters::ChainSettings settings = Parameters::getChainSettings(p_apvts);
 
 	auto& waveshaper = processorChain.template get<waveShaperIndex>();
-	waveshaper.functionToUse = GetDistortionAlgorithm(settings.clippingType, settings.drive, settings.hardness, settings.mix);
+	waveshaper.functionToUse = GetDistortionAlgorithm(settings.clippingType, juce::Decibels::decibelsToGain(settings.driveInDecibels), settings.hardness, settings.mix);
 
 	auto& postGain = processorChain.template get<postGainIndex>();
 	postGain.setGainDecibels(settings.outputGainInDecibels);
@@ -37,24 +37,46 @@ void Distortion::UpdateChain()
 
 std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters::ClippingType clippingType, float drive, float hardness, float mix)
 {
+	/*
+	* Parameter ranges
+	* drive in db [-30,30]
+	* theoretical drive in gain ]0, +inf[
+	* hardness [0,1]
+	* mix [0.1]
+	* x [-1,1]
+	*/
+
 	switch(clippingType)
 	{
 		case Parameters::ClippingType::SoftClipping:
-			return [drive, mix](DataType x)
+			return [drive, hardness, mix](DataType x)
 			{
-				return (2.0f / 3.1415f * atan(drive * x) * mix + x * (1 - mix));
-				//return copysignf(x, 1 - std::pow(std::exp(1.0f), -drive * std::abs(x)));
-				//return atan(drive * x);
+				float cleanInput{ x };
+				float driveInput{ cleanInput * drive };
+				float hardnessConstant{ hardness * 10 };
+
+				return (2.0f / 3.1415f *hardnessConstant * atan(driveInput) * mix + cleanInput * (1 - mix));
 			};
 			break;
 		case Parameters::ClippingType::HardClipping:
-			return [drive, mix](DataType x) { return juce::jlimit(float(drive - 1.01f), float(1.01f - drive), x) * mix + x * (1 - mix); };
+			return [drive, hardness, mix](DataType x)
+			{
+				float cleanInput{ x };
+				float driveInput{ cleanInput * drive };
+				float hardnessConstant{ std::clamp(1.0f - hardness, 0.05f, 1.0f) }; //prevent from going to 0
+
+				return juce::jlimit(float(-hardnessConstant), float(hardnessConstant), driveInput) * 1 / hardnessConstant * mix + cleanInput * (1 - mix);
+			};
 			break;
 		case Parameters::ClippingType::SineFold:
-			return [drive, mix](DataType x)
+			return [drive, hardness, mix](DataType x)
 			{
-				float maxFolds = 10.f;
-				return sin((drive * maxFolds + 1) * x) * mix + x * (1 - mix);
+				float cleanInput{ x };
+				float driveInput{ cleanInput * drive };
+				float maxFolds{ 5.f }, minFolds{ 0.5f };
+				float hardnessConstant{ hardness * (maxFolds - minFolds) + minFolds };
+
+				return sin(driveInput * hardnessConstant) * mix + cleanInput * (1 - mix);
 			};
 			break;
 		case Parameters::ClippingType::Dummy2:
