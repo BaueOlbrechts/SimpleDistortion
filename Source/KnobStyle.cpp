@@ -115,5 +115,27 @@ int KnobStyle::getTextHeight() const { return 14; };
 
 juce::String KnobStyle::getDisplayString() const
 {
-	return juce::String(getValue());
+	if(auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
+		return choiceParam->getCurrentChoiceName();
+
+	juce::String str;
+
+	if(auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
+	{
+		float val = getValue();
+		str = juce::String(val, 2);
+
+	}
+	else
+	{
+		jassertfalse;
+	}
+
+	if(suffix.isNotEmpty())
+	{
+		str << " ";
+		str << suffix;
+	}
+
+	return str;
 }
