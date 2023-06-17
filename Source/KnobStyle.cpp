@@ -15,9 +15,11 @@ void KnobLookAndFeel::drawRotarySlider(juce::Graphics& g,
 	jassert(rotaryStartAngle < rotaryEndAngle);
 
 	//Parameters
+	float outerCircleStroke{ 3.f };
+	float shadowCircleScale(0.7f);
+	float shadowCircleOffset(0.08f);
 	float innerCircleScale{ 0.75f };
 	float innerCircleStroke{ 2.f };
-	float outerCircleStroke{ 3.f };
 	float textBoxMargin{ 5.f };
 	float valueFontMinSize{ 10.f };
 	float valueFontScale{ 0.1f };
@@ -30,6 +32,10 @@ void KnobLookAndFeel::drawRotarySlider(juce::Graphics& g,
 	g.fillEllipse(bounds);
 	g.setColour(EditorColours::black);
 	g.drawEllipse(bounds, outerCircleStroke);
+
+	auto shaddowCircleBounds = juce::Rectangle<float>(bounds.getCentreX() - float(width) * (shadowCircleScale / 2 + shadowCircleOffset), bounds.getCentreY() - float(height) * (shadowCircleScale / 2 - shadowCircleOffset), float(width) * shadowCircleScale, float(height) * shadowCircleScale);
+	g.setColour(EditorColours::transparentBlack);
+	g.fillEllipse(shaddowCircleBounds);
 
 	auto innerCircleBounds = juce::Rectangle<float>(bounds.getCentreX() - float(width) * innerCircleScale / 2, bounds.getCentreY() - float(height) * innerCircleScale / 2, float(width) * innerCircleScale, float(height) * innerCircleScale);
 	g.setColour(EditorColours::lightblue);
