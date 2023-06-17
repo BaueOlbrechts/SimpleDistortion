@@ -62,7 +62,7 @@ public:
 	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters", Parameters::createParameterLayout() };
 
 private:
-	Distortion* p_distortion;
+	std::unique_ptr<Distortion> p_distortion;
  
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleDistortionAudioProcessor)

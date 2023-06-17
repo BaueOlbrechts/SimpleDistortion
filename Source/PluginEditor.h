@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "KnobStyle.h"
 
 //==============================================================================
 /**
@@ -29,7 +30,12 @@ private:
     // access the processor object that created it.
     SimpleDistortionAudioProcessor& audioProcessor;
 
+    std::unique_ptr <KnobStyle> driveKnob,
+        hardnessKnob,
+        mixKnob,
+        outputGainKnob;
 
+    std::vector<juce::Component*> getComps();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleDistortionAudioProcessorEditor)
 };

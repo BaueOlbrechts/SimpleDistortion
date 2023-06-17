@@ -22,13 +22,11 @@ SimpleDistortionAudioProcessor::SimpleDistortionAudioProcessor()
 	)
 #endif
 {
-	p_distortion = new Distortion(&apvts);
+	p_distortion = std::make_unique<Distortion>(&apvts);
 }
 
 SimpleDistortionAudioProcessor::~SimpleDistortionAudioProcessor()
 {
-	delete p_distortion;
-	p_distortion = nullptr;
 }
 
 //==============================================================================
@@ -155,6 +153,8 @@ void SimpleDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
 	juce::dsp::AudioBlock<float> block(buffer);
 	juce::dsp::ProcessContextReplacing<float> context(block);
 	p_distortion->Process(context);
+
+	//float RMS = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
 }
 
 //==============================================================================

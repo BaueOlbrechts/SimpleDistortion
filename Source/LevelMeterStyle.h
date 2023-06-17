@@ -3,7 +3,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-//#include "EditorColours.h"
+#include "EditorColours.h"
 
 class LevelMeter : public juce::Component
 {
