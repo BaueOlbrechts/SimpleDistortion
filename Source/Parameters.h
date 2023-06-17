@@ -55,7 +55,7 @@ public:
 		layout.add(std::make_unique<juce::AudioParameterFloat>(
 			ID_HARDNESS,
 			ID_HARDNESS_DISPLAY,
-			juce::NormalisableRange<float>(0.0f, 1.0f, 0.1f),
+			juce::NormalisableRange<float>(0.0f, 1.0f),
 			0.0f));
 
 		layout.add(std::make_unique<juce::AudioParameterFloat>(

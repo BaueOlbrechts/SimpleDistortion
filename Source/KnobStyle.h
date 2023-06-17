@@ -23,9 +23,10 @@ public:
 struct KnobStyle : juce::Slider
 {
 public:
-	KnobStyle(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) :
+	KnobStyle(juce::RangedAudioParameter& rap, const juce::String& displName, const juce::String& unitSuffix) :
 		juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
 		param(&rap),
+		displayName(displName),
 		suffix(unitSuffix)
 	{
 		setLookAndFeel(&lnf);
@@ -34,12 +35,13 @@ public:
 	~KnobStyle();
 	void paint(juce::Graphics& g) override;
 	juce::Rectangle<int> getSliderBounds() const;
-	int getTextHeight() const;
-	juce::String getDisplayString() const;
+	juce::String getValueString() const;
+	juce::String getNameString() const;
 
 private:
 	KnobLookAndFeel lnf;
 	juce::RangedAudioParameter* param;
+	juce::String displayName;
 	juce::String suffix;
 };
 

@@ -12,10 +12,10 @@
 //==============================================================================
 SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(SimpleDistortionAudioProcessor& p)
 	: AudioProcessorEditor(&p), audioProcessor(p),
-	driveKnob(*audioProcessor.apvts.getParameter(Parameters::ID_DRIVE), "dB"),
-	hardnessKnob(*audioProcessor.apvts.getParameter(Parameters::ID_HARDNESS), ""),
-	mixKnob(*audioProcessor.apvts.getParameter(Parameters::ID_MIX), ""),
-	outputGainKnob(*audioProcessor.apvts.getParameter(Parameters::ID_OUTPUT), "dB"),
+	driveKnob(*audioProcessor.apvts.getParameter(Parameters::ID_DRIVE), Parameters::ID_DRIVE_DISPLAY, "dB"),
+	hardnessKnob(*audioProcessor.apvts.getParameter(Parameters::ID_HARDNESS), Parameters::ID_HARDNESS_DISPLAY, ""),
+	mixKnob(*audioProcessor.apvts.getParameter(Parameters::ID_MIX),Parameters::ID_MIX_DISPLAY, ""),
+	outputGainKnob(*audioProcessor.apvts.getParameter(Parameters::ID_OUTPUT), Parameters::ID_OUTPUT_DISPLAY, "dB"),
 
 	driveKnobAttachment(audioProcessor.apvts, Parameters::ID_DRIVE, driveKnob),
 	hardnessKnobAttachment(audioProcessor.apvts, Parameters::ID_HARDNESS, hardnessKnob),
@@ -46,7 +46,7 @@ SimpleDistortionAudioProcessorEditor::~SimpleDistortionAudioProcessorEditor()
 void SimpleDistortionAudioProcessorEditor::paint(juce::Graphics& g)
 {
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
-	g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+	g.fillAll(EditorColours::grey);
 
 }
 
@@ -67,7 +67,7 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	auto titleArea = bounds.removeFromTop(int(bounds.getHeight() * 0.1f));
 	auto dropDownArea = bounds.removeFromBottom(int(bounds.getHeight() * 0.05f));
 
-	auto leftKnobArea = bounds.removeFromLeft(int(bounds.getWidth() * 0.25f));
+	auto leftKnobArea = bounds.removeFromLeft(int(bounds.getWidth() * 0.22f));
 	auto rightKnobArea = bounds.removeFromRight(leftKnobArea.getWidth());
 
 
