@@ -15,7 +15,7 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor (Simp
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (1000, 372);
 }
 
 SimpleDistortionAudioProcessorEditor::~SimpleDistortionAudioProcessorEditor()
@@ -37,4 +37,9 @@ void SimpleDistortionAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+
+    auto bounds = getLocalBounds();
+    auto graphArea = bounds.removeFromRight(bounds.getWidth() * 0.66);
+
+
 }

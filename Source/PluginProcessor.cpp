@@ -27,6 +27,8 @@ SimpleDistortionAudioProcessor::SimpleDistortionAudioProcessor()
 
 SimpleDistortionAudioProcessor::~SimpleDistortionAudioProcessor()
 {
+	delete p_distortion;
+	p_distortion = nullptr;
 }
 
 //==============================================================================
@@ -153,7 +155,6 @@ void SimpleDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
 	juce::dsp::AudioBlock<float> block(buffer);
 	juce::dsp::ProcessContextReplacing<float> context(block);
 	p_distortion->Process(context);
-
 }
 
 //==============================================================================
@@ -164,8 +165,8 @@ bool SimpleDistortionAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleDistortionAudioProcessor::createEditor()
 {
-	//return new SimpleDistortionAudioProcessorEditor(*this);
-	return new juce::GenericAudioProcessorEditor(*this);
+	return new SimpleDistortionAudioProcessorEditor(*this);
+	//return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
