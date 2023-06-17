@@ -53,9 +53,9 @@ std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters:
 			{
 				float cleanInput{ x };
 				float driveInput{ cleanInput * drive };
-				float hardnessConstant{ hardness * 10 };
+				float hardnessConstant{ hardness * 10 + 1 };
 
-				return (2.0f / 3.1415f *hardnessConstant * atan(driveInput) * mix + cleanInput * (1 - mix));
+				return (2.0f / 3.1415f * atan(driveInput * hardnessConstant) * mix + cleanInput * (1 - mix));
 			};
 			break;
 		case Parameters::ClippingType::HardClipping:

@@ -43,6 +43,8 @@ public:
 				return "Sine Fold";
 			case ClippingType::Dummy2:
 				return "Dummy 2";
+			default:
+				return "";
 		}
 	}
 

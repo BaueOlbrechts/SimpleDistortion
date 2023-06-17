@@ -11,15 +11,24 @@
 
 //==============================================================================
 SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(SimpleDistortionAudioProcessor& p)
-	: AudioProcessorEditor(&p), audioProcessor(p)
+	: AudioProcessorEditor(&p), audioProcessor(p),
+	driveKnob(*audioProcessor.apvts.getParameter(Parameters::ID_DRIVE), "dB"),
+	hardnessKnob(*audioProcessor.apvts.getParameter(Parameters::ID_HARDNESS), ""),
+	mixKnob(*audioProcessor.apvts.getParameter(Parameters::ID_MIX), ""),
+	outputGainKnob(*audioProcessor.apvts.getParameter(Parameters::ID_OUTPUT), "dB"),
+
+	driveKnobAttachment(audioProcessor.apvts, Parameters::ID_DRIVE, driveKnob),
+	hardnessKnobAttachment(audioProcessor.apvts, Parameters::ID_HARDNESS, hardnessKnob),
+	mixKnobAttachment(audioProcessor.apvts, Parameters::ID_MIX, mixKnob),
+	outputGainKnobAttachment(audioProcessor.apvts, Parameters::ID_OUTPUT, outputGainKnob)
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
 
-	driveKnob = std::make_unique <KnobStyle>();
-	hardnessKnob = std::make_unique <KnobStyle>();
-	mixKnob = std::make_unique <KnobStyle>();
-	outputGainKnob = std::make_unique <KnobStyle>();
+	//driveKnob = std::make_unique <KnobStyle>();
+	//hardnessKnob = std::make_unique <KnobStyle>();
+	//mixKnob = std::make_unique <KnobStyle>();
+	//outputGainKnob = std::make_unique <KnobStyle>();
 
 	for(auto* comp : getComps())
 	{
@@ -62,22 +71,22 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	auto rightKnobArea = bounds.removeFromRight(leftKnobArea.getWidth());
 
 
-	hardnessKnob.get()->setBounds(leftKnobArea.removeFromTop(int(leftKnobArea.getHeight() * 0.5f)));
-	mixKnob.get()->setBounds(leftKnobArea);
-	
-	outputGainKnob.get()->setBounds(rightKnobArea.removeFromTop(int(rightKnobArea.getHeight() * 0.5f)));
-	
-	driveKnob.get()->setBounds(bounds);
+	hardnessKnob.setBounds(leftKnobArea.removeFromTop(int(leftKnobArea.getHeight() * 0.5f)));
+	mixKnob.setBounds(leftKnobArea);
+
+	outputGainKnob.setBounds(rightKnobArea.removeFromTop(int(rightKnobArea.getHeight() * 0.5f)));
+
+	driveKnob.setBounds(bounds);
 }
 
 std::vector<juce::Component*> SimpleDistortionAudioProcessorEditor::getComps()
 {
 	return
 	{
-		driveKnob.get(),
-		hardnessKnob.get(),
-		mixKnob.get(),
-		outputGainKnob.get()
+		&driveKnob,
+		&hardnessKnob,
+		&mixKnob,
+		&outputGainKnob
 	};
 }
 
