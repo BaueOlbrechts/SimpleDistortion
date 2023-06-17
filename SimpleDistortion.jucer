@@ -4,6 +4,7 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="ZQYQfN" name="SimpleDistortion">
     <GROUP id="{FB1F4FB6-4D23-74F0-F78C-750BEAD7AA97}" name="Source">
+      <FILE id="hBeQIm" name="KnobStyle.cpp" compile="1" resource="0" file="Source/KnobStyle.cpp"/>
       <FILE id="TU39m0" name="EditorColours.h" compile="0" resource="0" file="Source/EditorColours.h"/>
       <FILE id="sQJZ5L" name="LevelMeterStyle.h" compile="0" resource="0"
             file="Source/LevelMeterStyle.h"/>

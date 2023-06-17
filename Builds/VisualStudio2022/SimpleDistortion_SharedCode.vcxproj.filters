@@ -601,6 +601,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\KnobStyle.cpp">
+      <Filter>SimpleDistortion\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Distortion.cpp">
       <Filter>SimpleDistortion\Source</Filter>
     </ClCompile>
