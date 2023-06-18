@@ -41,8 +41,8 @@ public:
 		rMiddle.setBottom(bounds.getBottom());
 
 		//Meters draw
-		paintMeterStlye2(g, bounds.removeFromLeft(bounds.getWidth() * 0.5f), levelLeft, backgroundDarkenValue, lightAreaScale);
-		paintMeterStlye2(g, bounds, levelRight, backgroundDarkenValue, lightAreaScale);
+		paintMeterStlye1(g, bounds.removeFromLeft(bounds.getWidth() * 0.5f), levelLeft, backgroundDarkenValue, lightAreaScale);
+		paintMeterStlye1(g, bounds, levelRight, backgroundDarkenValue, lightAreaScale);
 
 
 		//Draw middle line
@@ -69,33 +69,33 @@ private:
 	{
 		auto boundsBackup{ bounds };
 		//Draw background
-		g.setColour(EditorColours::red.darker(backgroundDarkenValue));
+		g.setColour(EditorColours::meterRed.darker(backgroundDarkenValue));
 		g.fillRect(bounds.removeFromTop(bounds.getHeight() * (maxLevel / (maxLevel - minLevel))));
-		g.setColour(EditorColours::lightblue.darker(backgroundDarkenValue));
+		g.setColour(EditorColours::meterLightGreen.darker(backgroundDarkenValue));
 		g.fillRect(bounds.removeFromTop(bounds.getHeight() * (maxLevel * lightAreaScale / (-minLevel))));
-		g.setColour(EditorColours::darkblue.darker(backgroundDarkenValue));
+		g.setColour(EditorColours::meterDarkGreen.darker(backgroundDarkenValue));
 		g.fillRect(bounds);
 
 		bounds = boundsBackup;
 		//Draw current level
 		const auto scaledYLeft{ juce::jmap(level,minLevel,maxLevel,0.f,float(bounds.getHeight())) };
-		if(scaledYLeft > juce::jmap(-maxLevel * lightAreaScale, minLevel, maxLevel, 0.f, float(bounds.getHeight())))
+		if(level >= -maxLevel * lightAreaScale)
 		{
 
-			if(scaledYLeft > juce::jmap(0.f, minLevel, maxLevel, 0.f, float(bounds.getHeight())))
+			if(level >= 0)
 			{
-				g.setColour(EditorColours::darkblue);
+				g.setColour(EditorColours::meterDarkGreen);
 				g.fillRect(bounds.removeFromBottom(juce::jmap(-maxLevel * lightAreaScale, minLevel, maxLevel, 0.f, float(bounds.getHeight()))));
-				g.setColour(EditorColours::lightblue);
+				g.setColour(EditorColours::meterLightGreen);
 				g.fillRect(bounds.removeFromBottom(juce::jmap(0.f, -maxLevel * lightAreaScale, maxLevel, 0.f, float(bounds.getHeight()))));
-				g.setColour(EditorColours::red);
+				g.setColour(EditorColours::meterRed);
 				g.fillRect(bounds.removeFromBottom(juce::jmap(level, 0.f, maxLevel, 0.f, float(bounds.getHeight()))));
 			}
 			else
 			{
-				g.setColour(EditorColours::darkblue);
+				g.setColour(EditorColours::meterDarkGreen);
 				g.fillRect(bounds.removeFromBottom(juce::jmap(-maxLevel * lightAreaScale, minLevel, maxLevel, 0.f, float(bounds.getHeight()))));
-				g.setColour(EditorColours::lightblue);
+				g.setColour(EditorColours::meterLightGreen);
 				g.fillRect(bounds.removeFromBottom(juce::jmap(level, -maxLevel * lightAreaScale, maxLevel, 0.f, float(bounds.getHeight()))));
 
 			}
@@ -103,7 +103,7 @@ private:
 		}
 		else
 		{
-			g.setColour(EditorColours::darkblue);
+			g.setColour(EditorColours::meterDarkGreen);
 			g.fillRect(bounds.removeFromBottom(scaledYLeft));
 		}
 	}
@@ -112,11 +112,11 @@ private:
 	{
 		auto boundsBackup{ bounds };
 		//Draw background
-		g.setColour(EditorColours::red.darker(backgroundDarkenValue));
+		g.setColour(EditorColours::meterRed.darker(backgroundDarkenValue));
 		g.fillRect(bounds.removeFromTop(bounds.getHeight() * (maxLevel / (maxLevel - minLevel))));
-		g.setColour(EditorColours::lightblue.darker(backgroundDarkenValue));
+		g.setColour(EditorColours::meterLightGreen.darker(backgroundDarkenValue));
 		g.fillRect(bounds.removeFromTop(bounds.getHeight() * (maxLevel * lightAreaScale / (-minLevel))));
-		g.setColour(EditorColours::darkblue.darker(backgroundDarkenValue));
+		g.setColour(EditorColours::meterDarkGreen.darker(backgroundDarkenValue));
 		g.fillRect(bounds);
 
 		bounds = boundsBackup;
@@ -124,24 +124,21 @@ private:
 		const auto scaledYLeft{ juce::jmap(level,minLevel,maxLevel,0.f,float(bounds.getHeight())) };
 		if(level >= -maxLevel * lightAreaScale)
 		{
-
 			if(level >= 0)
 			{
-				g.setColour(EditorColours::red);
+				g.setColour(EditorColours::meterRed);
 			}
 			else
 			{
-				g.setColour(EditorColours::lightblue);
+				g.setColour(EditorColours::meterLightGreen);
 			}
-
 		}
 		else
 		{
-			g.setColour(EditorColours::darkblue);
+			g.setColour(EditorColours::meterDarkGreen);
 		}
 		g.fillRect(bounds.removeFromBottom(scaledYLeft));
 	}
-
 };
 
 #endif
