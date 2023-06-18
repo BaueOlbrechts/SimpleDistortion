@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "Parameters.h"
 #include "KnobStyle.h"
+#include "LevelMeterStyle.h"
 
 //==============================================================================
 /**
@@ -44,6 +45,8 @@ private:
 		hardnessKnobAttachment,
 		mixKnobAttachment,
 		outputGainKnobAttachment;
+
+	LevelMeter lmInputLeft, lmInputRight, lmOutputLeft, lmOutputRight;
 
 	std::vector<juce::Component*> getComps();
 

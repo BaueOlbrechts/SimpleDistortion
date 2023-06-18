@@ -5,18 +5,41 @@
 #include <JuceHeader.h>
 #include "EditorColours.h"
 
-class LevelMeter : public juce::Component
+class LevelMeter : public juce::Component, public juce::Timer
 {
 public:
+	LevelMeter(std::function<float()>&& valueFunction) : valueSupplier(std::move(valueFunction))
+	{
+		startTimerHz(24);
+	}
+
 	void paint(juce::Graphics& g) override
 	{
-		auto bounds = getLocalBounds().toFloat();
+		const auto level{ valueSupplier() };
+
+		auto bounds{ getLocalBounds() };
+
+		g.setColour(EditorColours::black);
+		g.fillRect(bounds);
+
+		g.setColour(EditorColours::lightblue);
+		const auto scaledY{ juce::jmap(level,minLevel,maxLevel,0.f,static_cast<float>(getHeight())) };
+		g.fillRect(bounds.removeFromBottom(scaledY));
+	}
+
+	void resized() override
+	{
 
 	}
 
-	void setLevel(const float value) { level = value; }
+	void timerCallback() override
+	{
+		repaint();
+	}
 private:
-	float level = -60.f;
+	std::function<float()> valueSupplier;
+	float minLevel = -60.f;
+	float maxLevel = 6.f;
 };
 
 #endif

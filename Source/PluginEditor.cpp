@@ -14,13 +14,18 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(Simpl
 	: AudioProcessorEditor(&p), audioProcessor(p),
 	driveKnob(*audioProcessor.apvts.getParameter(Parameters::ID_DRIVE), Parameters::ID_DRIVE_DISPLAY, "dB"),
 	hardnessKnob(*audioProcessor.apvts.getParameter(Parameters::ID_HARDNESS), Parameters::ID_HARDNESS_DISPLAY, ""),
-	mixKnob(*audioProcessor.apvts.getParameter(Parameters::ID_MIX),Parameters::ID_MIX_DISPLAY, ""),
+	mixKnob(*audioProcessor.apvts.getParameter(Parameters::ID_MIX), Parameters::ID_MIX_DISPLAY, ""),
 	outputGainKnob(*audioProcessor.apvts.getParameter(Parameters::ID_OUTPUT), Parameters::ID_OUTPUT_DISPLAY, "dB"),
 
 	driveKnobAttachment(audioProcessor.apvts, Parameters::ID_DRIVE, driveKnob),
 	hardnessKnobAttachment(audioProcessor.apvts, Parameters::ID_HARDNESS, hardnessKnob),
 	mixKnobAttachment(audioProcessor.apvts, Parameters::ID_MIX, mixKnob),
-	outputGainKnobAttachment(audioProcessor.apvts, Parameters::ID_OUTPUT, outputGainKnob)
+	outputGainKnobAttachment(audioProcessor.apvts, Parameters::ID_OUTPUT, outputGainKnob),
+
+	lmInputLeft([&]() { return audioProcessor.getRmsValue(0,true); }),
+	lmInputRight([&]() { return audioProcessor.getRmsValue(1,true); }),
+	lmOutputLeft([&]() { return audioProcessor.getRmsValue(0,false); }),
+	lmOutputRight([&]() { return audioProcessor.getRmsValue(1,false); })
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
@@ -46,8 +51,13 @@ SimpleDistortionAudioProcessorEditor::~SimpleDistortionAudioProcessorEditor()
 void SimpleDistortionAudioProcessorEditor::paint(juce::Graphics& g)
 {
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
-	g.fillAll(EditorColours::grey);
+	g.fillAll(EditorColours::black);
 
+	auto bounds = getLocalBounds();
+	int borderSize = int(bounds.getHeight() * 0.012f);
+	bounds.reduce(borderSize, borderSize);
+	g.setColour(EditorColours::grey);
+	g.fillRect(bounds);
 }
 
 void SimpleDistortionAudioProcessorEditor::resized()
@@ -56,7 +66,7 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	// subcomponents in your editor..
 
 	auto bounds = getLocalBounds();
-	int borderSize = int(bounds.getHeight() * 0.05f);
+	int borderSize = int(bounds.getHeight() * 0.04f);
 	bounds.reduce(borderSize, borderSize);
 
 	auto graphArea = bounds.removeFromRight(bounds.getHeight() * 2);
@@ -77,6 +87,12 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	outputGainKnob.setBounds(rightKnobArea.removeFromTop(int(rightKnobArea.getHeight() * 0.5f)));
 
 	driveKnob.setBounds(bounds);
+
+	lmInputLeft.setBounds(leftMeterArea.removeFromLeft(int(leftMeterArea.getWidth() * 0.5f)));
+	lmInputRight.setBounds(leftMeterArea);
+
+	lmOutputLeft.setBounds(rightMeterArea.removeFromLeft(int(rightMeterArea.getWidth() * 0.5f)));
+	lmOutputRight.setBounds(rightMeterArea);
 }
 
 std::vector<juce::Component*> SimpleDistortionAudioProcessorEditor::getComps()
@@ -86,7 +102,12 @@ std::vector<juce::Component*> SimpleDistortionAudioProcessorEditor::getComps()
 		&driveKnob,
 		&hardnessKnob,
 		&mixKnob,
-		&outputGainKnob
+		&outputGainKnob,
+
+		&lmInputLeft,
+		&lmInputRight,
+		&lmOutputLeft,
+		&lmOutputRight
 	};
 }
 

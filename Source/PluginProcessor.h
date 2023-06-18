@@ -60,10 +60,11 @@ public:
 
 	//Custom stuff under here
 	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters", Parameters::createParameterLayout() };
+	float getRmsValue(const int channel, const bool isInput) const;
 
 private:
 	std::unique_ptr<Distortion> p_distortion;
- 
+	juce::SmoothedValue<float,juce::ValueSmoothingTypes::Linear> rmsLevelInputLeft, rmsLevelInputRight, rmsLevelOutputLeft, rmsLevelOutputRight;
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleDistortionAudioProcessor)
 };
