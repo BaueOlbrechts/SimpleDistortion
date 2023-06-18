@@ -601,9 +601,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\DistortionGraphStyle.cpp">
-      <Filter>SimpleDistortion\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\DropDownStyle.cpp">
       <Filter>SimpleDistortion\Source</Filter>
     </ClCompile>

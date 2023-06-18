@@ -26,7 +26,9 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(Simpl
 	lmOutput([&]() { return audioProcessor.getPeakValue(0, false); }, [&]() { return audioProcessor.getPeakValue(1, false); }),
 
 	clippingTypeDropDown(*audioProcessor.apvts.getParameter(Parameters::ID_CLIPPINGTYPE), Parameters::ID_CLIPPINGTYPE_DISPLAY),
-	clippingTypeDropDownAttachment(audioProcessor.apvts,Parameters::ID_CLIPPINGTYPE,clippingTypeDropDown)
+	clippingTypeDropDownAttachment(audioProcessor.apvts, Parameters::ID_CLIPPINGTYPE, clippingTypeDropDown),
+
+	distortionGraph(&audioProcessor.apvts)
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
@@ -75,6 +77,7 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	bounds.reduce(marginSize, marginSize);
 
 	auto graphArea = bounds.removeFromRight(bounds.getHeight() * 2);
+	bounds.removeFromRight(marginSize);
 
 	auto leftMeterArea = bounds.removeFromLeft(int(bounds.getWidth() * 0.1f));
 	auto rightMeterArea = bounds.removeFromRight(leftMeterArea.getWidth());
@@ -85,6 +88,8 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	auto dropDownArea = bounds.removeFromBottom(int(bounds.getHeight() * 0.07f));
 	auto leftKnobArea = bounds.removeFromLeft(int(bounds.getWidth() * 0.22f));
 	auto rightKnobArea = bounds.removeFromRight(leftKnobArea.getWidth());
+
+	distortionGraph.setBounds(graphArea);
 
 	clippingTypeDropDown.setBounds(dropDownArea);
 
@@ -113,7 +118,9 @@ std::vector<juce::Component*> SimpleDistortionAudioProcessorEditor::getComps()
 		&lmInput,
 		&lmOutput,
 
-		&clippingTypeDropDown
+		&clippingTypeDropDown,
+
+		&distortionGraph
 	};
 }
 

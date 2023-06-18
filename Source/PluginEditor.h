@@ -14,6 +14,7 @@
 #include "KnobStyle.h"
 #include "LevelMeterStyle.h"
 #include "DropDownStyle.h"
+#include "DistortionGraphStyle.h"
 
 //==============================================================================
 /**
@@ -27,6 +28,7 @@ public:
 	//==============================================================================
 	void paint(juce::Graphics&) override;
 	void resized() override;
+
 
 private:
 	// This reference is provided as a quick way for your editor to
@@ -52,6 +54,7 @@ private:
 	DropDownStyle clippingTypeDropDown;
 	juce::AudioProcessorValueTreeState::ComboBoxAttachment clippingTypeDropDownAttachment;
 
+	DistortionGraph distortionGraph;
 
 	std::vector<juce::Component*> getComps();
 

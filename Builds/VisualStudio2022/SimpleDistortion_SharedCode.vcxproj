@@ -139,7 +139,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\DistortionGraphStyle.cpp"/>
     <ClCompile Include="..\..\Source\DropDownStyle.cpp"/>
     <ClCompile Include="..\..\Source\KnobStyle.cpp"/>
     <ClCompile Include="..\..\Source\Distortion.cpp"/>
