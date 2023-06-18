@@ -12,5 +12,6 @@ namespace EditorColours
 	const static juce::Colour transparentBlack{ juce::Colour::fromRGBA(11, 11, 12, 30) };
 	const static juce::Colour grey{ juce::Colour::fromRGB(48, 48, 51) };
 	const static juce::Colour white{ juce::Colour::fromRGB(255, 255, 255) };
+	const static juce::Colour red{ juce::Colour::fromRGB(112,52,52) };
 }
 #endif

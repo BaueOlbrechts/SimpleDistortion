@@ -22,10 +22,8 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(Simpl
 	mixKnobAttachment(audioProcessor.apvts, Parameters::ID_MIX, mixKnob),
 	outputGainKnobAttachment(audioProcessor.apvts, Parameters::ID_OUTPUT, outputGainKnob),
 
-	lmInputLeft([&]() { return audioProcessor.getRmsValue(0,true); }),
-	lmInputRight([&]() { return audioProcessor.getRmsValue(1,true); }),
-	lmOutputLeft([&]() { return audioProcessor.getRmsValue(0,false); }),
-	lmOutputRight([&]() { return audioProcessor.getRmsValue(1,false); })
+	lmInput([&]() { return audioProcessor.getRmsValue(0, true); }, [&]() { return audioProcessor.getRmsValue(1, true); }),
+	lmOutput([&]() { return audioProcessor.getRmsValue(0, false); }, [&]() { return audioProcessor.getRmsValue(1, false); })
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
@@ -88,11 +86,9 @@ void SimpleDistortionAudioProcessorEditor::resized()
 
 	driveKnob.setBounds(bounds);
 
-	lmInputLeft.setBounds(leftMeterArea.removeFromLeft(int(leftMeterArea.getWidth() * 0.5f)));
-	lmInputRight.setBounds(leftMeterArea);
+	lmInput.setBounds(leftMeterArea);
 
-	lmOutputLeft.setBounds(rightMeterArea.removeFromLeft(int(rightMeterArea.getWidth() * 0.5f)));
-	lmOutputRight.setBounds(rightMeterArea);
+	lmOutput.setBounds(rightMeterArea);
 }
 
 std::vector<juce::Component*> SimpleDistortionAudioProcessorEditor::getComps()
@@ -104,10 +100,8 @@ std::vector<juce::Component*> SimpleDistortionAudioProcessorEditor::getComps()
 		&mixKnob,
 		&outputGainKnob,
 
-		&lmInputLeft,
-		&lmInputRight,
-		&lmOutputLeft,
-		&lmOutputRight
+		&lmInput,
+		&lmOutput
 	};
 }
 

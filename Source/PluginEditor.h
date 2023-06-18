@@ -46,7 +46,7 @@ private:
 		mixKnobAttachment,
 		outputGainKnobAttachment;
 
-	LevelMeter lmInputLeft, lmInputRight, lmOutputLeft, lmOutputRight;
+	LevelMeter lmInput, lmOutput;
 
 	std::vector<juce::Component*> getComps();
 

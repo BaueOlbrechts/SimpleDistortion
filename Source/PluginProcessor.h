@@ -64,7 +64,7 @@ public:
 
 private:
 	std::unique_ptr<Distortion> p_distortion;
-	juce::SmoothedValue<float,juce::ValueSmoothingTypes::Linear> rmsLevelInputLeft, rmsLevelInputRight, rmsLevelOutputLeft, rmsLevelOutputRight;
+	juce::SmoothedValue<float,juce::ValueSmoothingTypes::Linear> peakLevelInputLeft, peakLevelInputRight, peakLevelOutputLeft, peakLevelOutputRight;
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleDistortionAudioProcessor)
 };

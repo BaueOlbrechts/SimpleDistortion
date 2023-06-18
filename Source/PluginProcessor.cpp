@@ -102,15 +102,15 @@ void SimpleDistortionAudioProcessor::prepareToPlay(double sampleRate, int sample
 
 	p_distortion->Prepare(spec);
 
-	rmsLevelInputLeft.reset(sampleRate, 0.5f);
-	rmsLevelInputRight.reset(sampleRate, 0.5f);
-	rmsLevelOutputLeft.reset(sampleRate, 0.5f);
-	rmsLevelOutputRight.reset(sampleRate, 0.5f);
+	peakLevelInputLeft.reset(sampleRate, 0.5f);
+	peakLevelInputRight.reset(sampleRate, 0.5f);
+	peakLevelOutputLeft.reset(sampleRate, 0.5f);
+	peakLevelOutputRight.reset(sampleRate, 0.5f);
 
-	rmsLevelInputLeft.setCurrentAndTargetValue(-100.f);
-	rmsLevelInputRight.setCurrentAndTargetValue(-100.f);
-	rmsLevelOutputLeft.setCurrentAndTargetValue(-100.f);
-	rmsLevelOutputRight.setCurrentAndTargetValue(-100.f);
+	peakLevelInputLeft.setCurrentAndTargetValue(-100.f);
+	peakLevelInputRight.setCurrentAndTargetValue(-100.f);
+	peakLevelOutputLeft.setCurrentAndTargetValue(-100.f);
+	peakLevelOutputRight.setCurrentAndTargetValue(-100.f);
 }
 
 void SimpleDistortionAudioProcessor::releaseResources()
@@ -148,22 +148,22 @@ bool SimpleDistortionAudioProcessor::isBusesLayoutSupported(const BusesLayout& l
 void SimpleDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
 	//Input LevelMeter calculations
-	juce::ScopedNoDenormals noDenormals;
-	rmsLevelInputLeft.skip(buffer.getNumSamples());
-	rmsLevelInputRight.skip(buffer.getNumSamples());
+	//juce::ScopedNoDenormals noDenormals;
+	peakLevelInputLeft.skip(buffer.getNumSamples());
+	peakLevelInputRight.skip(buffer.getNumSamples());
 	{
-		const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
-		if(value < rmsLevelInputLeft.getCurrentValue())
-			rmsLevelInputLeft.setTargetValue(value);
+		const auto value = juce::Decibels::gainToDecibels(buffer.getMagnitude(0, 0, buffer.getNumSamples()));
+		if(value < peakLevelInputLeft.getCurrentValue())
+			peakLevelInputLeft.setTargetValue(value);
 		else
-			rmsLevelInputLeft.setCurrentAndTargetValue(value);
+			peakLevelInputLeft.setCurrentAndTargetValue(value);
 	}
 	{
-		const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
-		if(value < rmsLevelInputRight.getCurrentValue())
-			rmsLevelInputRight.setTargetValue(value);
+		const auto value = juce::Decibels::gainToDecibels(buffer.getMagnitude(1, 0, buffer.getNumSamples()));
+		if(value < peakLevelInputRight.getCurrentValue())
+			peakLevelInputRight.setTargetValue(value);
 		else
-			rmsLevelInputRight.setCurrentAndTargetValue(value);
+			peakLevelInputRight.setCurrentAndTargetValue(value);
 	}
 
 	auto totalNumInputChannels = getTotalNumInputChannels();
@@ -183,22 +183,22 @@ void SimpleDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
 	p_distortion->Process(context);
 
 	//Output LevelMeter calculations
-	//juce::ScopedNoDenormals noDenormals;
-	rmsLevelOutputLeft.skip(buffer.getNumSamples());
-	rmsLevelOutputRight.skip(buffer.getNumSamples());
+	juce::ScopedNoDenormals noDenormals;
+	peakLevelOutputLeft.skip(buffer.getNumSamples());
+	peakLevelOutputRight.skip(buffer.getNumSamples());
 	{
-		const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
-		if(value < rmsLevelOutputLeft.getCurrentValue())
-			rmsLevelOutputLeft.setTargetValue(value);
+		const auto value = juce::Decibels::gainToDecibels(buffer.getMagnitude(0, 0, buffer.getNumSamples()));
+		if(value < peakLevelOutputLeft.getCurrentValue())
+			peakLevelOutputLeft.setTargetValue(value);
 		else
-			rmsLevelOutputLeft.setCurrentAndTargetValue(value);
+			peakLevelOutputLeft.setCurrentAndTargetValue(value);
 	}
 	{
-		const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
-		if(value < rmsLevelOutputRight.getCurrentValue())
-			rmsLevelOutputRight.setTargetValue(value);
+		const auto value = juce::Decibels::gainToDecibels(buffer.getMagnitude(1, 0, buffer.getNumSamples()));
+		if(value < peakLevelOutputRight.getCurrentValue())
+			peakLevelOutputRight.setTargetValue(value);
 		else
-			rmsLevelOutputRight.setCurrentAndTargetValue(value);
+			peakLevelOutputRight.setCurrentAndTargetValue(value);
 	}
 }
 
@@ -242,14 +242,14 @@ float SimpleDistortionAudioProcessor::getRmsValue(const int channel, const bool 
 	jassert(channel == 0 || channel == 1);
 	if(channel == 0)
 		if(isInput)
-			return rmsLevelInputLeft.getCurrentValue();
+			return peakLevelInputLeft.getCurrentValue();
 		else
-			return rmsLevelOutputLeft.getCurrentValue();
+			return peakLevelOutputLeft.getCurrentValue();
 	if(channel == 1)
 		if(isInput)
-			return rmsLevelInputRight.getCurrentValue();
+			return peakLevelInputRight.getCurrentValue();
 		else
-			return rmsLevelOutputRight.getCurrentValue();
+			return peakLevelOutputRight.getCurrentValue();
 }
 
 
