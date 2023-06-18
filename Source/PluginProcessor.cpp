@@ -237,7 +237,7 @@ void SimpleDistortionAudioProcessor::setStateInformation(const void* data, int s
 	}
 }
 
-float SimpleDistortionAudioProcessor::getRmsValue(const int channel, const bool isInput) const
+float SimpleDistortionAudioProcessor::getPeakValue(const int channel, const bool isInput) const
 {
 	jassert(channel == 0 || channel == 1);
 	if(channel == 0)

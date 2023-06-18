@@ -60,7 +60,7 @@ public:
 
 	//Custom stuff under here
 	juce::AudioProcessorValueTreeState apvts{ *this, nullptr,"Parameters", Parameters::createParameterLayout() };
-	float getRmsValue(const int channel, const bool isInput) const;
+	float getPeakValue(const int channel, const bool isInput) const;
 
 private:
 	std::unique_ptr<Distortion> p_distortion;

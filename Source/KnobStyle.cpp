@@ -28,6 +28,7 @@ void KnobLookAndFeel::drawRotarySlider(juce::Graphics& g,
 
 	//Draw circles with border
 	auto bounds = juce::Rectangle<float>(float(x), float(y), float(width), float(height));
+	bounds.reduce(outerCircleStroke / 2.f, outerCircleStroke / 2.f);
 	g.setColour(EditorColours::darkblue);
 	g.fillEllipse(bounds);
 	g.setColour(EditorColours::black);
@@ -73,10 +74,11 @@ void KnobLookAndFeel::drawRotarySlider(juce::Graphics& g,
 		g.setColour(EditorColours::lightblue);
 		g.fillRect(r);
 		g.setColour(EditorColours::black);
-		g.drawRect(r);
+		g.drawRect(r, innerCircleStroke);
 
 		g.setColour(EditorColours::black);
 		g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
+
 
 		//Draw display name
 		g.setFont(displayFontMinSize + bounds.getWidth() * displayFontScale);
@@ -110,11 +112,13 @@ void KnobStyle::paint(juce::Graphics& g)
 	auto range = getRange();
 	auto sliderBounds = getSliderBounds();
 
+	/*
 	//Test to see bounds
 	g.setColour(juce::Colours::red);
 	g.drawRect(getLocalBounds());
 	g.setColour(juce::Colours::yellow);
 	g.drawRect(sliderBounds);
+	*/
 
 	//Get paint from LookAndFeel
 	getLookAndFeel().drawRotarySlider(g,

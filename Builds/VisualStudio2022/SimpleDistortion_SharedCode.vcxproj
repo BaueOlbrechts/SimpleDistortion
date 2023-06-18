@@ -139,6 +139,8 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\DistortionGraphStyle.cpp"/>
+    <ClCompile Include="..\..\Source\DropDownStyle.cpp"/>
     <ClCompile Include="..\..\Source\KnobStyle.cpp"/>
     <ClCompile Include="..\..\Source\Distortion.cpp"/>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp"/>
@@ -2424,6 +2426,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\DistortionGraphStyle.h"/>
+    <ClInclude Include="..\..\Source\DropDownStyle.h"/>
     <ClInclude Include="..\..\Source\EditorColours.h"/>
     <ClInclude Include="..\..\Source\LevelMeterStyle.h"/>
     <ClInclude Include="..\..\Source\KnobStyle.h"/>

@@ -17,14 +17,38 @@ public:
 
 	void paint(juce::Graphics& g) override
 	{
-		const auto levelLeft{ valueSupplierLeft() };
-		const auto levelRight{ valueSupplierRight() };
+		const auto levelLeft{ juce::jmax(minLevel, valueSupplierLeft()) };
+		const auto levelRight{ juce::jmax(minLevel, valueSupplierRight()) };
 		auto bounds{ getLocalBounds() };
 
 		float borderScale{ 0.12f };
 		float dividerScale{ 0.1f };
 		float backgroundDarkenValue{ 0.5f };
 		float lightAreaScale{ 2.f };
+
+		float valueFontMinSize{ 8.f };
+		float valueFontScale{ 0.13f };
+		float textBoxMargin{ 5.f };
+
+		//Draw value text box
+		juce::Rectangle<float> r;
+		juce::String text = juce::String(juce::jmax(levelLeft, levelRight), 1);
+		text << " dB";
+
+		g.setFont(valueFontMinSize + bounds.getWidth() * valueFontScale);
+		g.getCurrentFont().setBold(true);
+
+		r.setSize(bounds.getWidth(), (valueFontMinSize + bounds.getWidth() * valueFontScale) * 1.4f);
+		r.setCentre(bounds.getCentreX(), bounds.getY() + r.getHeight()/2);
+
+		g.setColour(EditorColours::lightblue);
+		g.fillRect(r);
+		g.setColour(EditorColours::black);
+		g.drawRect(r, 2);
+
+		g.setColour(EditorColours::black);
+		g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
+		bounds.removeFromTop(r.getHeight() + textBoxMargin);
 
 
 		//Background draw
@@ -43,7 +67,6 @@ public:
 		//Meters draw
 		paintMeterStlye1(g, bounds.removeFromLeft(bounds.getWidth() * 0.5f), levelLeft, backgroundDarkenValue, lightAreaScale);
 		paintMeterStlye1(g, bounds, levelRight, backgroundDarkenValue, lightAreaScale);
-
 
 		//Draw middle line
 		g.setColour(EditorColours::black);

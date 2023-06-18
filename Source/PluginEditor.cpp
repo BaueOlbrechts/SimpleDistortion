@@ -22,8 +22,11 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(Simpl
 	mixKnobAttachment(audioProcessor.apvts, Parameters::ID_MIX, mixKnob),
 	outputGainKnobAttachment(audioProcessor.apvts, Parameters::ID_OUTPUT, outputGainKnob),
 
-	lmInput([&]() { return audioProcessor.getRmsValue(0, true); }, [&]() { return audioProcessor.getRmsValue(1, true); }),
-	lmOutput([&]() { return audioProcessor.getRmsValue(0, false); }, [&]() { return audioProcessor.getRmsValue(1, false); })
+	lmInput([&]() { return audioProcessor.getPeakValue(0, true); }, [&]() { return audioProcessor.getPeakValue(1, true); }),
+	lmOutput([&]() { return audioProcessor.getPeakValue(0, false); }, [&]() { return audioProcessor.getPeakValue(1, false); }),
+
+	clippingTypeDropDown(*audioProcessor.apvts.getParameter(Parameters::ID_CLIPPINGTYPE), Parameters::ID_CLIPPINGTYPE_DISPLAY),
+	clippingTypeDropDownAttachment(audioProcessor.apvts,Parameters::ID_CLIPPINGTYPE,clippingTypeDropDown)
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
@@ -37,6 +40,10 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(Simpl
 	{
 		addAndMakeVisible(comp);
 	}
+	titleLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+	titleLabel.setText("Simple Distortion/Waveshaper",juce::dontSendNotification);
+	titleLabel.setColour(juce::Label::textColourId, EditorColours::white);
+	titleLabel.setJustificationType(juce::Justification::centredTop);
 
 	setSize(1350, 470);
 }
@@ -64,8 +71,8 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	// subcomponents in your editor..
 
 	auto bounds = getLocalBounds();
-	int borderSize = int(bounds.getHeight() * 0.04f);
-	bounds.reduce(borderSize, borderSize);
+	int marginSize = int(bounds.getHeight() * 0.035f);
+	bounds.reduce(marginSize, marginSize);
 
 	auto graphArea = bounds.removeFromRight(bounds.getHeight() * 2);
 
@@ -73,35 +80,40 @@ void SimpleDistortionAudioProcessorEditor::resized()
 	auto rightMeterArea = bounds.removeFromRight(leftMeterArea.getWidth());
 
 	auto titleArea = bounds.removeFromTop(int(bounds.getHeight() * 0.1f));
-	auto dropDownArea = bounds.removeFromBottom(int(bounds.getHeight() * 0.05f));
 
+	bounds.reduce(marginSize, 0);
+	auto dropDownArea = bounds.removeFromBottom(int(bounds.getHeight() * 0.07f));
 	auto leftKnobArea = bounds.removeFromLeft(int(bounds.getWidth() * 0.22f));
 	auto rightKnobArea = bounds.removeFromRight(leftKnobArea.getWidth());
 
+	clippingTypeDropDown.setBounds(dropDownArea);
 
 	hardnessKnob.setBounds(leftKnobArea.removeFromTop(int(leftKnobArea.getHeight() * 0.5f)));
 	mixKnob.setBounds(leftKnobArea);
-
 	outputGainKnob.setBounds(rightKnobArea.removeFromTop(int(rightKnobArea.getHeight() * 0.5f)));
-
 	driveKnob.setBounds(bounds);
 
 	lmInput.setBounds(leftMeterArea);
-
 	lmOutput.setBounds(rightMeterArea);
+
+	titleLabel.setBounds(titleArea);
 }
 
 std::vector<juce::Component*> SimpleDistortionAudioProcessorEditor::getComps()
 {
 	return
 	{
+		&titleLabel,
+
 		&driveKnob,
 		&hardnessKnob,
 		&mixKnob,
 		&outputGainKnob,
 
 		&lmInput,
-		&lmOutput
+		&lmOutput,
+
+		&clippingTypeDropDown
 	};
 }
 

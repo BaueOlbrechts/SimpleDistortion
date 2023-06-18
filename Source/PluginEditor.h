@@ -13,6 +13,7 @@
 #include "Parameters.h"
 #include "KnobStyle.h"
 #include "LevelMeterStyle.h"
+#include "DropDownStyle.h"
 
 //==============================================================================
 /**
@@ -32,21 +33,25 @@ private:
 	// access the processor object that created it.
 	SimpleDistortionAudioProcessor& audioProcessor;
 
+	juce::Label titleLabel;
+
 	//std::unique_ptr <KnobStyle> 
-	KnobStyle
-		driveKnob,
+	KnobStyle driveKnob,
 		hardnessKnob,
 		mixKnob,
 		outputGainKnob;
-
-	using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
-
-	Attachment driveKnobAttachment,
+	juce::AudioProcessorValueTreeState::SliderAttachment driveKnobAttachment,
 		hardnessKnobAttachment,
 		mixKnobAttachment,
 		outputGainKnobAttachment;
 
+
 	LevelMeter lmInput, lmOutput;
+
+
+	DropDownStyle clippingTypeDropDown;
+	juce::AudioProcessorValueTreeState::ComboBoxAttachment clippingTypeDropDownAttachment;
+
 
 	std::vector<juce::Component*> getComps();
 
