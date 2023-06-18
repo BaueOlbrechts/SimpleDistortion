@@ -28,7 +28,7 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(Simpl
 	clippingTypeDropDown(*audioProcessor.apvts.getParameter(Parameters::ID_CLIPPINGTYPE), Parameters::ID_CLIPPINGTYPE_DISPLAY),
 	clippingTypeDropDownAttachment(audioProcessor.apvts, Parameters::ID_CLIPPINGTYPE, clippingTypeDropDown),
 
-	distortionGraph(&audioProcessor.apvts)
+	distortionGraph(&audioProcessor.apvts, [&]() { return audioProcessor.getPeakValue(0, true); }, [&]() { return audioProcessor.getPeakValue(1, true); })
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
@@ -43,7 +43,7 @@ SimpleDistortionAudioProcessorEditor::SimpleDistortionAudioProcessorEditor(Simpl
 		addAndMakeVisible(comp);
 	}
 	titleLabel.setFont(juce::Font(24.0f, juce::Font::bold));
-	titleLabel.setText("Simple Distortion/Waveshaper",juce::dontSendNotification);
+	titleLabel.setText("Simple Distortion/Waveshaper", juce::dontSendNotification);
 	titleLabel.setColour(juce::Label::textColourId, EditorColours::white);
 	titleLabel.setJustificationType(juce::Justification::centredTop);
 

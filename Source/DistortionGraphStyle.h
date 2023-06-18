@@ -9,14 +9,20 @@
 class DistortionGraph : public juce::Component, juce::AudioProcessorParameter::Listener, juce::Timer
 {
 public:
-	DistortionGraph(juce::AudioProcessorValueTreeState* apvts) :
-		p_apvts{ apvts }
+	DistortionGraph(juce::AudioProcessorValueTreeState* apvts, std::function<float()>&& valueFunctionLeft, std::function<float()>&& valueFunctionRight) :
+		p_apvts{ apvts },
+		valueSupplierLeft(std::move(valueFunctionLeft)),
+		valueSupplierRight(std::move(valueFunctionRight))
 	{
 		startTimerHz(24);
 
 		p_apvts->getParameter(Parameters::ID_CLIPPINGTYPE)->addListener(this);
 		p_apvts->getParameter(Parameters::ID_HARDNESS)->addListener(this);
 		p_apvts->getParameter(Parameters::ID_MIX)->addListener(this);
+		p_apvts->getParameter(Parameters::ID_OUTPUT)->addListener(this);
+		p_apvts->getParameter(Parameters::ID_DRIVE)->addListener(this);
+
+		updateGraph();
 	};
 
 	~DistortionGraph()
@@ -24,16 +30,16 @@ public:
 		p_apvts->getParameter(Parameters::ID_CLIPPINGTYPE)->removeListener(this);
 		p_apvts->getParameter(Parameters::ID_HARDNESS)->removeListener(this);
 		p_apvts->getParameter(Parameters::ID_MIX)->removeListener(this);
+		p_apvts->getParameter(Parameters::ID_OUTPUT)->removeListener(this);
+		p_apvts->getParameter(Parameters::ID_DRIVE)->removeListener(this);
 	};
 
 	void paint(juce::Graphics& g) override
 	{
 		//Parameters
 		auto bounds = getLocalBounds();
-		float borderStroke{ 4.0f };
-		float lineStroke{ 2.0f };
-		int subDivisionLinesHorizontal{ 3 };
-		int subDivisionLinesVertical{ 7 };
+		const int subDivisionLinesHorizontal{ 3 };
+		const int subDivisionLinesVertical{ 7 };
 
 		//Draw background
 		g.setColour(EditorColours::darkblue);
@@ -51,7 +57,7 @@ public:
 			else
 				g.setColour(EditorColours::grey);
 
-			r.setCentre(bounds.getCentreX(), (i + 1) * bounds.getHeight() / (subDivisionLinesHorizontal + 1));
+			r.setCentre(bounds.getCentreX(), (i + 1) * bounds.getHeight() / (subDivisionLinesHorizontal + 1) + lineStroke * 2.f);
 			g.fillRect(r);
 		}
 
@@ -65,40 +71,102 @@ public:
 			else
 				g.setColour(EditorColours::grey);
 
-			r.setCentre((i + 1) * bounds.getWidth() / (subDivisionLinesVertical + 1), bounds.getCentreY());
+			r.setCentre((i + 1) * bounds.getWidth() / (subDivisionLinesVertical + 1) + lineStroke * 2.f, bounds.getCentreY());
 			g.fillRect(r);
 		}
 
+		//Draw input graph
+		const auto levelLeft{ juce::Decibels::decibelsToGain(valueSupplierLeft()) };
+		const auto levelRight{ juce::Decibels::decibelsToGain(valueSupplierRight()) };
+		const float peak{ juce::jmax(levelLeft, levelRight) };
 
-		//Curve drawing
+		if(peak > juce::Decibels::decibelsToGain(-60.f))
+		{
+			const float driveInput{ juce::jmin(peak * (1 - mixValue) + peak * driveInGain * mixValue,2.f) };
+			const int inputCurveSampling{ int(functionCurveSampling / 4 * driveInput * 2) };
+
+			bounds.reduce(0, lineStroke / 2.f);
+			bounds.reduce(bounds.getWidth() * (1 - juce::jmap(driveInput, 0.f, 2.f, 0.f, 1.f)) / 2.f, 0);
+			inputCurve.clear();
+			for(int i{ 0 }; i <= inputCurveSampling; i++)
+			{
+				float output = graphFunction(juce::jmap(float(i), 0.f, float(inputCurveSampling), -driveInput, driveInput));
+				float x = bounds.getX() + bounds.getWidth() / float(inputCurveSampling) * i;
+				float y = bounds.getY() + bounds.getHeight() * juce::jmap(output, -1.f, 1.f, 1.f, 0.f);
+
+				if(i == 0)
+				{
+					inputCurve.startNewSubPath(x, y);
+				}
+				else
+				{
+					inputCurve.lineTo(x, y);
+				}
+			}
+			g.setColour(EditorColours::white);
+			g.strokePath(inputCurve, juce::PathStrokeType(lineStroke * 3.f, juce::PathStrokeType::beveled, juce::PathStrokeType::rounded));
+		}
+
+		//Draw graph path
+		g.setColour(EditorColours::lightblue);
+		g.strokePath(functionCurve, juce::PathStrokeType(lineStroke, juce::PathStrokeType::beveled, juce::PathStrokeType::rounded));
+
+		//Draw border
+		g.setColour(EditorColours::black);
+		g.drawRect(getLocalBounds(), int(borderStroke));
+	}
+
+	void parameterValueChanged(int parameterIndex, float newValue) override
+	{
+		parametersChanged.set(true);
+	}
+
+	void parameterGestureChanged(int paramterIndex, bool gestureIsStarting) override {}
+
+	void timerCallback() override
+	{
+		if(parametersChanged.compareAndSetBool(false, true))
+		{
+			updateGraph();
+		}
+
+		repaint();
+	}
+
+	void updateGraph()
+	{
+		//Updating params
 		Parameters::ChainSettings settings = Parameters::getChainSettings(p_apvts);
-		std::function<float(float)> graphFunction;
-		float hardness{ settings.hardness };
+		driveInGain = juce::Decibels::decibelsToGain(settings.driveInDecibels);
+		mixValue = settings.mix;
 		float mix{ settings.mix };
+		float hardness{ settings.hardness };
+		float outputGain{ juce::Decibels::decibelsToGain(settings.outputGainInDecibels) };
 
+		//Setting correct function
 		switch(settings.clippingType)
 		{
 			case Parameters::ClippingType::SoftClipping:
-				graphFunction = [hardness, mix](float x)
+				graphFunction = [hardness, mix, outputGain](float x)
 				{
-					float hardnessConstant{ hardness * 10 + 1 };
-					return (2.0f / 3.1415f * atan(x * hardnessConstant) * mix + x * (1 - mix));
+					float hardnessConstant{ hardness * 30 + 1 };
+					return (2.0f / 3.1415f * atan(x * hardnessConstant) * mix + x * (1 - mix)) * outputGain;
 				};
 				break;
 			case Parameters::ClippingType::HardClipping:
-				graphFunction = [hardness, mix](float x)
+				graphFunction = [hardness, mix, outputGain](float x)
 				{
 					float hardnessConstant{ std::clamp(1.0f - hardness, 0.05f, 1.0f) }; //prevent from going to 0
-					return juce::jlimit(float(-hardnessConstant), float(hardnessConstant), x) * 1 / hardnessConstant * mix + x * (1 - mix);
+					return (juce::jlimit(float(-hardnessConstant), float(hardnessConstant), x) * 1 / hardnessConstant * mix + x * (1 - mix)) * outputGain;
 				};
 				break;
 			case Parameters::ClippingType::SineFold:
-				graphFunction = [hardness, mix](float x)
+				graphFunction = [hardness, mix, outputGain](float x)
 				{
-					float maxFolds{ 5.f }, minFolds{ 0.5f };
+					float maxFolds{ 20.f }, minFolds{ 0.5f };
 					float hardnessConstant{ hardness * (maxFolds - minFolds) + minFolds };
 
-					return sin(x * hardnessConstant) * mix + x * (1 - mix);
+					return (sin(x * hardnessConstant) * mix + x * (1 - mix)) * outputGain;
 				};
 				break;
 			case Parameters::ClippingType::Dummy2:
@@ -115,44 +183,43 @@ public:
 				break;
 		}
 
-		juce::Path functionCurve;
-		functionCurve.startNewSubPath(bounds.getX(), bounds.getY());
-		int functionSampling{ 200 };
-		for(int i{ 0 }; i <= functionSampling; i++)
+		//Curve path generation
+		auto bounds = getLocalBounds();
+		bounds.reduce(borderStroke, borderStroke);
+		bounds.reduce(0, lineStroke / 2.f);
+
+		functionCurve.clear();
+		for(int i{ 0 }; i <= functionCurveSampling; i++)
 		{
-			float output = graphFunction(juce::jmap(float(i), 0.f, float(functionSampling), -2.f, 2.f));
-			float x = bounds.getX() + bounds.getWidth() / float(functionSampling) * i;
-			//float y = juce::jmap(graphFunction(i), -1.f, 1.f, float(bounds.getBottom()), float(bounds.getY()));
+			float output = graphFunction(juce::jmap(float(i), 0.f, float(functionCurveSampling), -2.f, 2.f));
+			float x = bounds.getX() + bounds.getWidth() / float(functionCurveSampling) * i;
 			float y = bounds.getY() + bounds.getHeight() * juce::jmap(output, -1.f, 1.f, 1.f, 0.f);
-			functionCurve.lineTo(x, y);
-		}
-		g.setColour(EditorColours::lightblue);
-		g.strokePath(functionCurve, juce::PathStrokeType(lineStroke));
 
-		//Draw border
-		g.setColour(EditorColours::black);
-		g.drawRect(getLocalBounds(), borderStroke);
-	}
-
-	void parameterValueChanged(int parameterIndex, float newValue) override
-	{
-		parametersChanged.set(true);
-	}
-
-	void parameterGestureChanged(int paramterIndex, bool gestureIsStarting) override {}
-
-	void timerCallback() override
-	{
-		if(parametersChanged.compareAndSetBool(false, true))
-		{
-			repaint();
+			if(i == 0)
+			{
+				functionCurve.startNewSubPath(x, y);
+			}
+			else
+			{
+				functionCurve.lineTo(x, y);
+			}
 		}
 	}
-
 
 private:
 	juce::AudioProcessorValueTreeState* p_apvts;
-	juce::Atomic<bool> parametersChanged{ false };
+	std::function<float()> valueSupplierLeft;
+	std::function<float()> valueSupplierRight;
+	juce::Atomic<bool> parametersChanged{ true };
 
+
+	std::function<float(float)> graphFunction;
+	juce::Path functionCurve;
+	juce::Path inputCurve;
+	float driveInGain{ 0.0f };
+	float mixValue{ 0.0f };
+	const float borderStroke{ 4.0f };
+	const float lineStroke{ 2.0f };
+	const int functionCurveSampling{ 400 };
 };
 #endif

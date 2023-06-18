@@ -53,7 +53,7 @@ std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters:
 			{
 				float cleanInput{ x };
 				float driveInput{ cleanInput * drive };
-				float hardnessConstant{ hardness * 10 + 1 };
+				float hardnessConstant{ hardness * 30 + 1 };
 
 				return (2.0f / 3.1415f * atan(driveInput * hardnessConstant) * mix + cleanInput * (1 - mix));
 			};
@@ -73,7 +73,7 @@ std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters:
 			{
 				float cleanInput{ x };
 				float driveInput{ cleanInput * drive };
-				float maxFolds{ 5.f }, minFolds{ 0.5f };
+				float maxFolds{ 20.f }, minFolds{ 0.5f };
 				float hardnessConstant{ hardness * (maxFolds - minFolds) + minFolds };
 
 				return sin(driveInput * hardnessConstant) * mix + cleanInput * (1 - mix);
