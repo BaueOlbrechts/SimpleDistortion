@@ -28,7 +28,7 @@ public:
 		SoftClipping,
 		HardClipping,
 		SineFold,
-		Dummy2
+		SawFold
 	};
 
 	static const char* ClippingTypeToString(ClippingType ct) noexcept
@@ -41,8 +41,8 @@ public:
 				return "Hard Clipping";
 			case ClippingType::SineFold:
 				return "Sine Fold";
-			case ClippingType::Dummy2:
-				return "Dummy 2";
+			case ClippingType::SawFold:
+				return "Saw Fold";
 			default:
 				return "";
 		}
@@ -79,8 +79,8 @@ public:
 
 		juce::StringArray clippingTypeArray(ClippingTypeToString(ClippingType::SoftClipping),
 			ClippingTypeToString(ClippingType::HardClipping),
-			ClippingTypeToString(ClippingType::SineFold),
-			ClippingTypeToString(ClippingType::Dummy2));
+			ClippingTypeToString(ClippingType::SineFold)/*,
+			ClippingTypeToString(ClippingType::SawFold)*/);
 
 		layout.add(std::make_unique<juce::AudioParameterChoice>(
 			ID_CLIPPINGTYPE,

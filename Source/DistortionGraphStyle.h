@@ -83,28 +83,31 @@ public:
 		if(peak > juce::Decibels::decibelsToGain(-60.f))
 		{
 			const float driveInput{ juce::jmin(peak * (1 - mixValue) + peak * driveInGain * mixValue,2.f) };
-			const int inputCurveSampling{ int(functionCurveSampling / 4 * driveInput * 2) };
 
-			bounds.reduce(0, lineStroke / 2.f);
-			bounds.reduce(bounds.getWidth() * (1 - juce::jmap(driveInput, 0.f, 2.f, 0.f, 1.f)) / 2.f, 0);
-			inputCurve.clear();
-			for(int i{ 0 }; i <= inputCurveSampling; i++)
+			if(driveInput != 0)
 			{
-				float output = graphFunction(juce::jmap(float(i), 0.f, float(inputCurveSampling), -driveInput, driveInput));
-				float x = bounds.getX() + bounds.getWidth() / float(inputCurveSampling) * i;
-				float y = bounds.getY() + bounds.getHeight() * juce::jmap(output, -1.f, 1.f, 1.f, 0.f);
+				const int inputCurveSampling{ int(functionCurveSampling / 4 * driveInput * 2) };
+				bounds.reduce(0, lineStroke / 2.f);
+				bounds.reduce(bounds.getWidth() * (1 - juce::jmap(driveInput, 0.f, 2.f, 0.f, 1.f)) / 2.f, 0);
+				inputCurve.clear();
+				for(int i{ 0 }; i <= inputCurveSampling; i++)
+				{
+					float output = graphFunction(juce::jmap(float(i), 0.f, float(inputCurveSampling), -driveInput, driveInput));
+					float x = bounds.getX() + bounds.getWidth() / float(inputCurveSampling) * i;
+					float y = bounds.getY() + bounds.getHeight() * juce::jmap(output, -1.f, 1.f, 1.f, 0.f);
 
-				if(i == 0)
-				{
-					inputCurve.startNewSubPath(x, y);
+					if(i == 0)
+					{
+						inputCurve.startNewSubPath(x, y);
+					}
+					else
+					{
+						inputCurve.lineTo(x, y);
+					}
 				}
-				else
-				{
-					inputCurve.lineTo(x, y);
-				}
+				g.setColour(EditorColours::white);
+				g.strokePath(inputCurve, juce::PathStrokeType(lineStroke * 3.f, juce::PathStrokeType::beveled, juce::PathStrokeType::rounded));
 			}
-			g.setColour(EditorColours::white);
-			g.strokePath(inputCurve, juce::PathStrokeType(lineStroke * 3.f, juce::PathStrokeType::beveled, juce::PathStrokeType::rounded));
 		}
 
 		//Draw graph path
@@ -150,13 +153,13 @@ public:
 				graphFunction = [hardness, mix, outputGain](float x)
 				{
 					float hardnessConstant{ hardness * 30 + 1 };
-					return (2.0f / 3.1415f * atan(x * hardnessConstant) * mix + x * (1 - mix)) * outputGain;
+					return (2.0f / juce::MathConstants<float>::pi * atan(x * hardnessConstant) * mix + x * (1 - mix)) * outputGain;
 				};
 				break;
 			case Parameters::ClippingType::HardClipping:
 				graphFunction = [hardness, mix, outputGain](float x)
 				{
-					float hardnessConstant{ std::clamp(1.0f - hardness, 0.05f, 1.0f) }; //prevent from going to 0
+					float hardnessConstant{ std::clamp(1.0f - hardness, 0.001f, 1.0f) }; //prevent from going to 0
 					return (juce::jlimit(float(-hardnessConstant), float(hardnessConstant), x) * 1 / hardnessConstant * mix + x * (1 - mix)) * outputGain;
 				};
 				break;
@@ -164,17 +167,20 @@ public:
 				graphFunction = [hardness, mix, outputGain](float x)
 				{
 					float maxFolds{ 20.f }, minFolds{ 0.5f };
-					float hardnessConstant{ hardness * (maxFolds - minFolds) + minFolds };
+					float hardnessConstant{ (hardness * (maxFolds - minFolds) + minFolds) * (juce::MathConstants<float>::pi / 2.f) };
 
 					return (sin(x * hardnessConstant) * mix + x * (1 - mix)) * outputGain;
 				};
 				break;
-			case Parameters::ClippingType::Dummy2:
-				graphFunction = [](float x)
-				{
-					return x;
-				};
-				break;
+			//case Parameters::ClippingType::SawFold:
+			//	graphFunction = [hardness, mix, outputGain](float x)
+			//	{
+			//		float maxFolds{ 20.f }, minFolds{ 0.5f };
+			//		float hardnessConstant{ hardness * (maxFolds - minFolds) + minFolds };
+			//
+			//
+			//		return (fmod(x * hardnessConstant, 1.f) * mix + x * (1 - mix)) * outputGain;
+			//	};
 			default:
 				graphFunction = [](float x)
 				{

@@ -55,7 +55,7 @@ std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters:
 				float driveInput{ cleanInput * drive };
 				float hardnessConstant{ hardness * 30 + 1 };
 
-				return (2.0f / 3.1415f * atan(driveInput * hardnessConstant) * mix + cleanInput * (1 - mix));
+				return (2.0f / juce::MathConstants<float>::pi * atan(driveInput * hardnessConstant) * mix + cleanInput * (1 - mix));
 			};
 			break;
 		case Parameters::ClippingType::HardClipping:
@@ -63,7 +63,7 @@ std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters:
 			{
 				float cleanInput{ x };
 				float driveInput{ cleanInput * drive };
-				float hardnessConstant{ std::clamp(1.0f - hardness, 0.05f, 1.0f) }; //prevent from going to 0
+				float hardnessConstant{ std::clamp(1.0f - hardness, 0.001f, 1.0f) }; //prevent from going to 0
 
 				return juce::jlimit(float(-hardnessConstant), float(hardnessConstant), driveInput) * 1 / hardnessConstant * mix + cleanInput * (1 - mix);
 			};
@@ -74,13 +74,23 @@ std::function<DataType(DataType)> Distortion::GetDistortionAlgorithm(Parameters:
 				float cleanInput{ x };
 				float driveInput{ cleanInput * drive };
 				float maxFolds{ 20.f }, minFolds{ 0.5f };
-				float hardnessConstant{ hardness * (maxFolds - minFolds) + minFolds };
+				float hardnessConstant{ (hardness * (maxFolds - minFolds) + minFolds) * (juce::MathConstants<float>::pi / 2.f) };
+
 
 				return sin(driveInput * hardnessConstant) * mix + cleanInput * (1 - mix);
 			};
 			break;
-		case Parameters::ClippingType::Dummy2:
-			break;
+		//case Parameters::ClippingType::SawFold:
+		//	return [drive, hardness, mix](DataType x)
+		//	{
+		//		float cleanInput{ x };
+		//		float driveInput{ cleanInput * drive };
+		//		float maxFolds{ 20.f }, minFolds{ 0.5f };
+		//		float hardnessConstant{ hardness * (maxFolds - minFolds) + minFolds };
+		//
+		//		return fmod(driveInput * hardnessConstant, 1.f) * mix + cleanInput * (1 - mix);
+		//	};
+		//	break;
 		default:
 			return [](DataType x) { return x; };
 			break;
